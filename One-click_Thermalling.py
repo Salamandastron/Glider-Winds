@@ -22,8 +22,8 @@ def difference(array):
     return delta
 
 
-with open("JohnEllis_17-09-19.igc", "r") as fin:
-    with open("John.txt", "w") as fout:
+with open("JohnEllis_17-09-19.igc", "r") as fin:    #Anyfile.igc
+    with open("John.txt", "w") as fout:     #Generate a text file with the relevant information from the above .igc file from which the data will be extracted
         for line in fin:
             if line.startswith('B'):
                 time_hour = int(line[1:3])  #Extract the hour
@@ -198,36 +198,6 @@ while (i<len(time_array)-1):
         bearing.append(theta)
         i = i+1
 
-#Gradient of the bearing of the glider
-rate = np.gradient(bearing)
-
-#Plot bearing against time then select a section to zoom in on
-"""zoom = [0, 0]
-
-counter = 0
-while counter < 2:
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(time_array, bearing)
-
-    for i in range(0,1):
-        cid = fig.canvas.mpl_connect('button_press_event', onclick)
-
-    plt.show()
-
-    x = coords[0]
-
-    i = find_index(time_array, x)
-
-    zoom[counter] = i
-
-    counter = counter + 1
-
-plt.plot(time_array[zoom[0]:zoom[1]], bearing[zoom[0]:zoom[1]])
-plt.show()
-
-plt.plot(time_array, rate)
-plt.show()"""
 
 dist_xyz = [0]
 dist_xy = [0]
@@ -245,16 +215,16 @@ while (i<len(time_array)-1):
     dist_xy.append(d)
     dist_xyz.append(e)
     i = i+1
-
+#Calculate the position in latitude and longitude relative to the take off location for plotting the 3D track later
 rel_lat = [x - lat_array[0] for x in lat_array]
 x_pos = [(x*2*R)/(2*np.pi) for x in rel_lat]
 
 rel_long = [y - long_array[0] for y in long_array]
 y_pos = [(y*2*R)/(2*np.pi) for y in rel_long]
 
-gps_minus_pres = [0]
+
+#Calculate difference in altitude between gps and pressure readingsgps_minus_pres = [0]
 i = 0
-#Calculate difference in altitude between gps and pressure readings
 while (i<len(time_array)-1):
     alt_dif = alt_gps_array[i] - alt_pres_array[i]
     gps_minus_pres.append(alt_dif)
@@ -267,25 +237,14 @@ while (i<len(time_array)-1):
     dt = difference(time_array)
     delta_t.append(dt)
     i = i+1
-   
+
+#Calculate the gorund speed as the crow flies    
 ground_speed = [0]
 i = 1
-#Calculate the gorund speed as the crow flies
 while (i<len(time_array)-1):
     speed = dist_xy[i]/delta_t[i]
     ground_speed.append(speed)
     i = i+1
-
-height_speed = [0]
-c = 1
-#Calculate the rising/falling speed
-"""while (c<len(time_array)-1): 
-    speed = delta_z[c]/delta_t[c]
-    height_speed.append(speed)
-    c = c+1"""
-
-"""plt.plot(y_pos, x_pos)
-plt.show()"""
 
 def thermaling():
     #Select the point which you want to check is in a thermal
@@ -313,7 +272,7 @@ def thermaling():
 
     i = 0
     while i<20:
-        if np.abs(bearing[thermal] - bearing[thermal - 10+i]) > ((1)*np.pi):
+        if np.abs(bearing[thermal] - bearing[thermal - 10+i]) > ((1)*np.pi):    #Basic condition a section must meet to be applicable to this method
             if thermal > thermal - 10+i:
                 spiral = [thermal - 20, thermal + 20]
             else:
@@ -323,7 +282,7 @@ def thermaling():
             y_values = []
             z_values = []
             i = spiral[0]
-            #Plot the values for a specific thermal
+            #Plot the ground speed for a specific thermal
             while (i<spiral[1]):
                 j = ground_speed[i]*np.cos(bearing[i])
                 k = ground_speed[i]*np.sin(bearing[i])
@@ -335,7 +294,6 @@ def thermaling():
                 i = i+1
             
             ax = plt.axes(projection = '3d')
-
             ax.scatter3D(x_values, y_values, z_values)
             ax.set_xlabel('East-West ground speed (m/s)')
             ax.set_ylabel('North-South ground speed (m/s)')
@@ -343,15 +301,8 @@ def thermaling():
             plt.show()
 
 
-            #Plot the actual thermal section of the flight in 3d
-            rel_lat = [x - lat_array[0] for x in lat_array]
-            x_pos = [(x*2*R)/(2*np.pi) for x in rel_lat]
-
-            rel_long = [y - long_array[0] for y in long_array]
-            y_pos = [(y*2*R)/(2*np.pi) for y in rel_long]
-
+            #Plot the actual thermal section of the flight in 3D - this is optional and mainly for presentation
             ax = plt.axes(projection = '3d')
-
             ax.scatter3D(x_pos[spiral[0]:spiral[1]], y_pos[spiral[0]:spiral[1]], alt_gps_array[spiral[0]:spiral[1]])
             ax.set_xlabel('East-West')
             ax.set_ylabel('North-South')
