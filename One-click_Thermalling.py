@@ -223,7 +223,8 @@ rel_long = [y - long_array[0] for y in long_array]
 y_pos = [(y*2*R)/(2*np.pi) for y in rel_long]
 
 
-#Calculate difference in altitude between gps and pressure readingsgps_minus_pres = [0]
+#Calculate difference in altitude between gps and pressure readings
+gps_minus_pres = [0]
 i = 0
 while (i<len(time_array)-1):
     alt_dif = alt_gps_array[i] - alt_pres_array[i]
